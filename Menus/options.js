@@ -102,6 +102,8 @@ class ExplorerStackMenu {
                     break;
                 case "function":
                     menu = new Button(obj[element]);
+                    menu.explorer_parent = explorer;
+                    menu.element_height = element_height;
                     menu.parent = parent;
                     menu.name = element;
                     break;
@@ -197,10 +199,12 @@ class Button {
     }
 
     Render(screen, x, y, width){
-        screen.DrawRect({ x: x, y: y, width: 50, height: 50, color: "grey" });
-        screen.DrawRect({ x: x + 5, y: y + 20, width: 40, height: 10, color: "white" });
-        screen.DrawRect({ x: x + 35, y: y + 15, width: 5, height: 20, color: "white" });
-        screen.DrawRect({ x: x + 30, y: y + 10, width: 5, height: 30, color: "white" });
+        x -= width / 2 - this.element_height;
+        y -= 25 + this.explorer_parent.GetRenderCurrent() * this.element_height;
+        screen.DrawRect({ x: x, y: y, width: this.element_height, height: this.element_height, color: "grey" });
+        screen.DrawRect({ x: x + 0.1 * this.element_height, y: y + 0.4 * this.element_height, width: 0.8 * this.element_height, height: 0.2 * this.element_height, color: "white" });
+        screen.DrawRect({ x: x + 0.7 * this.element_height, y: y + 0.3 * this.element_height, width: 0.1 * this.element_height, height: 0.4 * this.element_height, color: "white" });
+        screen.DrawRect({ x: x + 0.6 * this.element_height, y: y + 0.2 * this.element_height, width: 0.1 * this.element_height, height: 0.6 * this.element_height, color: "white" });
     }
 
     KeyDown(key){

@@ -3,7 +3,8 @@
 let settings = {
     icons: {
         fontsize: 20
-    }
+    },
+    footholder: 3
 };
 
 function GetIconParams(x, y, text){
