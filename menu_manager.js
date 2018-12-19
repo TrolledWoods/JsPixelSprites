@@ -15,7 +15,7 @@ class MenuManager {
     }
 
     PopMenu(menu){
-        if(this.menus.lenght > 1)
+        if(this.menus.length > 1)
             this.current = this.menus.pop();
     }
 

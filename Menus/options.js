@@ -24,7 +24,7 @@ class MenuStack {
         menu.active = true;
     }
 
-    PopMenu(menu){
+    PopMenu(){
         if(this.menu_stack.length > 0){
             this.current_menu.active = false;
             this.current_menu = this.menu_stack.pop();
@@ -102,6 +102,7 @@ class ExplorerStackMenu {
                     break;
                 case "function":
                     menu = new Button(obj[element]);
+                    menu.parent = parent;
                     menu.name = element;
                     break;
             }
@@ -191,6 +192,7 @@ class Button {
     Update() {
         if(this.active){
             this.on_click();
+            this.parent.PopMenu();
         }
     }
 
