@@ -1,18 +1,35 @@
 "use strict";
 
+let settings = {
+    icons: {
+        fontsize: 20
+    }
+};
+
+function GetIconParams(x, y, text){
+    return {
+        x: x, y: y + 10,
+        color: "white",
+        text: text,
+        font: settings.icons.fontsize + "px Arial",
+        align: "center",
+    };
+}
+
 let screen;
 let menu;
+let menus = {};
 
 window.onload = () => {
     screen = Screen.FromID('editor');
-    menu = new MenuManager(screen, MenuStack.CreateObjectExplorer({ 
-        "Start": 5, 
-        "Settings": {
-            "Volume": 5,
-            "SoundDampening": 3,
-        },
-        "Exit": 2, 
-    }));
+
+    menus.main = MenuStack.CreateObjectExplorer({ 
+        "Start": () => menu.PushMenu(),
+        "Settings": settings
+    });
+    
+
+    menu = new MenuManager(screen, menus.main);
 
     frame();
 }
