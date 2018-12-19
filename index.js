@@ -5,14 +5,14 @@ let menu;
 
 window.onload = () => {
     screen = Screen.FromID('editor');
-    menu = new MenuManager(screen, OptionMenu.FromObject({ 
+    menu = new MenuManager(screen, MenuStack.CreateObjectExplorer({ 
         "Start": 5, 
         "Settings": {
             "Volume": 5,
             "SoundDampening": 3,
         },
         "Exit": 2, 
-    }))
+    }));
 
     frame();
 }
