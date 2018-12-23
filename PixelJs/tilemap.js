@@ -85,7 +85,7 @@ class Tilemap {
         let index = this.get_index(args);
         if(index < 0) return this;
 
-        this.tiles[index] = tile;
+        this.tiles[index] = args.tile;
         return this;
     }
     CreateGetRelativeFunc(origin_x, origin_y){

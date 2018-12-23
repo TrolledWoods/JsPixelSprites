@@ -220,6 +220,9 @@ class PartialScreen extends Screen {
 
 		return this;
 	}
+	DrawText(args){
+		if(args.x > 0 && args.y > 0 && args.x <= this.width && args.y <= this.height) super.DrawText(args);
+	}
 	DrawAnimation(args){
 		args = this.ApplyEffects(args);
 

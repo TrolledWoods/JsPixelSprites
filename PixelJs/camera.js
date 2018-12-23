@@ -47,15 +47,15 @@ class Camera {
 
     WorldToScreen(world_pos){
         return {
-            x: (world_pos.x - this.pos.x) * this.zoom + this.screen.width/2,
-            y: (-(world_pos.y - this.pos.y) * this.zoom + this.screen.height/2)
+            x: (world_pos.x - this.pos.x) * Math.round(this.zoom) + this.screen.width/2,
+            y: (-(world_pos.y - this.pos.y) * Math.round(this.zoom) + this.screen.height/2)
         };
     }
 
     ScreenToWorld(screen_pos){
         return {
-            x: (screen_pos.x - this.screen.width/2) / this.zoom + this.pos.x,
-            y: -(screen_pos.y - this.screen.height/2) / this.zoom + this.pos.y
+            x: (screen_pos.x - this.screen.width/2) / Math.round(this.zoom) + this.pos.x,
+            y: -(screen_pos.y - this.screen.height/2) / Math.round(this.zoom) + this.pos.y
         };
     }
     Clear(args){
@@ -186,7 +186,7 @@ class Camera {
     DrawTilemap(args){
         args = this.ApplyEffects(args);
 
-        let size = this.zoom * args.tilemap.tile_scale;
+        let size = Math.round(this.zoom) * args.tilemap.tile_scale;
         let middle = args.tilemap.WorldToTilemap(this.ScreenToWorld({x:this.screen.width/2,y:this.screen.height/2}));
         let width = Math.ceil(this.screen.width / (2 * size));
         let height = Math.ceil(this.screen.height / (2 * size));
@@ -194,9 +194,9 @@ class Camera {
         let ur = { x: middle.x + width, y: middle.y + height };
 
         let origin = this.WorldToScreen(args.tilemap.TilemapToWorld({ x: Math.floor(dl.x), y: Math.floor(dl.y) }));
-        let pos_x = Math.floor(origin.x);
+        let pos_x = origin.x;
         for(let x = Math.floor(dl.x); x <= Math.ceil(ur.x); x++){
-            let pos_y = Math.floor(origin.y);
+            let pos_y = origin.y;
             for(let y = Math.floor(dl.y); y <= Math.ceil(ur.y); y++){
                 let fargs = {
                     screen: this.screen, 
@@ -204,9 +204,9 @@ class Camera {
                     tile_pos: { x: x, y: y },
                     x: pos_x - size / 2, 
                     y: pos_y - size / 2,
-                    size: size + 1,
-                    width: size + 1,
-                    height: size + 1
+                    size: size,
+                    width: size,
+                    height: size
                 }
                 fargs = this.ApplyEffects(fargs);
                 args.DrawTile(fargs);

@@ -1,17 +1,24 @@
 class MenuStack {
-    constructor(current){
+    constructor(current, colors = {}, width_perc = 0.33){
         this.menu_stack = [];
         this.current_menu = current;
 
         if(current !== null)
             current.active = true;
 
-        this.menu_width = 300;
         this.menu_offset = 5;
+        this.colors = Object.assign({
+            background: "black",
+            text: "white",
+            focused_boxes: "gray",
+            boxes: "darkgray"
+        }, colors);
+
+        this.width_perc = width_perc;
     }
 
-    static CreateObjectExplorer(obj){
-        let menu_stack = new MenuStack(null);
+    static CreateObjectExplorer(obj, colors = {}, width_perc = 0.33){
+        let menu_stack = new MenuStack(null, colors, width_perc);
         menu_stack.current_menu = ExplorerStackMenu.FromObj(obj, 50, menu_stack);
         menu_stack.current_menu.active = true;
         return menu_stack;
@@ -40,9 +47,11 @@ class MenuStack {
     }
 
     Render(screen){
+        screen.Clear({ color: this.colors.background });
+        
         let x = screen.width / 2;
         let y = screen.height / 2;
-        let width = this.menu_width;
+        let width = screen.width * this.width_perc;
     
         this.current_menu.Render(screen, x, screen.height / 2, width);
 
@@ -60,12 +69,12 @@ class MenuStack {
     }
 
     KeyDown(key){
-        switch(key){
-            case 'a':
+        switch(key.key){
+            case 'a': case 'ArrowLeft':
                 this.PopMenu();
                 break;
             default:
-                this.current_menu.KeyDown(key);
+                this.current_menu.KeyDown(key.key);
                 break;
         }
     }
@@ -83,9 +92,7 @@ class ExplorerStackMenu {
         this.element_offset = 5;
     }
     static FromObj(obj, element_height, parent) {
-        let explorer = new ExplorerStackMenu([], element_height, parent)
-
-        console.log(obj);
+        let explorer = new ExplorerStackMenu([], element_height, parent);
 
         for(let element in obj){
             let menu;
@@ -97,11 +104,11 @@ class ExplorerStackMenu {
                     menu.name = element;
                     break;
                 case "number":
-                    menu = new NumberStackMenu(obj[element], val => { obj[element] = val; });
+                    menu = new NumberStackMenu(obj[element], val => { obj[element] = val; }, parent);
                     menu.name = element;
                     break;
                 case "function":
-                    menu = new Button(obj[element]);
+                    menu = new Button(obj[element], parent);
                     menu.explorer_parent = explorer;
                     menu.element_height = element_height;
                     menu.parent = parent;
@@ -143,14 +150,14 @@ class ExplorerStackMenu {
             screen.DrawRect({
                 x: rx, y: ry,
                 width: width, height: this.element_height,
-                color: this.active ? (i === this.current ? "white" : "grey") : "#a0a0a040" 
+                color: this.active ? (i === this.current ? this.parent.colors.focused_boxes : this.parent.colors.boxes) : "#a0a0a040" 
             })
 
             if(this.active)
                 screen.DrawText({
                     x: rx, y: ry + this.element_height / 1.5,
                     text: this.menus[i].name,
-                    color: "black",
+                    color: this.parent.colors.text,
                     align: "left",
                     font: (this.element_height / 2) + "px Arial"
                 })
@@ -171,15 +178,15 @@ class ExplorerStackMenu {
 
     KeyDown(key){
         switch(key){
-            case "w":
+            case "w": case "ArrowUp":
                 if(this.current > 0)
                     this.current--;
                 break;
-            case "s":
+            case "s": case "ArrowDown":
                 if(this.current < this.menus.length - 1)
                     this.current++;
                 break;
-            case "d":
+            case "d": case "ArrowRight":
                 this.parent.PushMenu(this.menus[this.current]);
                 break;
         }
@@ -187,8 +194,9 @@ class ExplorerStackMenu {
 }
 
 class Button {
-    constructor(on_click) {
+    constructor(on_click, parent) {
         this.on_click = on_click;
+        this.parent = parent;
     }
 
     Update() {
@@ -199,7 +207,7 @@ class Button {
     }
 
     Render(screen, x, y, width){
-        x -= width / 2 - this.element_height;
+        x -= width / 2;
         y -= 25 + this.explorer_parent.GetRenderCurrent() * this.element_height;
         screen.DrawRect({ x: x, y: y, width: this.element_height, height: this.element_height, color: "grey" });
         screen.DrawRect({ x: x + 0.1 * this.element_height, y: y + 0.4 * this.element_height, width: 0.8 * this.element_height, height: 0.2 * this.element_height, color: "white" });
@@ -213,8 +221,9 @@ class Button {
 }
 
 class NumberStackMenu {
-    constructor(number, on_change){
+    constructor(number, on_change, parent){
         this.number = number;
+        this.parent = parent;
         this.on_change = on_change;
     }
 
@@ -227,7 +236,7 @@ class NumberStackMenu {
             x: x, y: y + width / 4,
             text: this.number.toString(),
             font: (width * ( this.active ? 0.8 : 0.5)) + "px Arial",
-            color: this.active ? "white" : "#a0a0a050",
+            color: this.active ? this.parent.colors.text : this.parent.colors.boxes,
             align: "center"
         });
 
@@ -236,7 +245,7 @@ class NumberStackMenu {
                 x: x, y: screen.height * 0.8,
                 text: this.name,
                 font: "30px Arial",
-                color: "white",
+                color: this.parent.colors.text,
                 align: "center"
             });
 
@@ -247,8 +256,8 @@ class NumberStackMenu {
 
     KeyDown(key){
         switch(key){
-            case "w": this.number += 2; // Because it falls through and gets subtracted again
-            case "s": this.number--;
+            case "w": case "ArrowUp": this.number += 2; // Because it falls through and gets subtracted again
+            case "s": case "ArrowDown": this.number--;
                 this.on_change(this.number);
                 break;
         }
